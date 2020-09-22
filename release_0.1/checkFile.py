@@ -1,38 +1,62 @@
 #!/usr/bin/env python3
 
-import urllib.request
-import urllib.error
+import urllib3
 import codecs
 import re
 
 from colourText import colourText
 
 class checkFile:
-    def __init__(self, filetoCheck):
+    def __init__(self, filetoCheck, *args):
         self.file = filetoCheck
         self.file = codecs.open(self.file)
-        style = colourText()
+        self.style = colourText()
+        self.manager = urllib3.PoolManager()
+        self.secureCheck = args
         
+        self.checkThatFile()
+
+    def checkThatFile(self):
+        print('Getting status of link...')
         for line in self.file:
             line = self.parseWebAddress(line)
+            status = 0
+
+            self.printStatusCode(line)
+            
+            if(self.secureCheck):
+                self.secureHttpChecker(line)
+    
+    
+    def printStatusCode(self, link):
             try:
-                with urllib.request.urlopen(line) as response:
-                    status = response.getcode()
-                    if(status < 300):
-                        print(f"{style._goodLink}{line}{style._plainText}")
-                    elif(status == 400 or status == 404):
-                        print(f"{style._badLink}{line} **{status}** {style._plainText}")
-                    else:
-                        print(f"{style._unknownLink}{line} **{status}** {style._plainText}")
-            except urllib.error.URLError as e:
-                print(e.reason)
+                response = self.manager.request('HEAD', link)
+                status = response.status
+
+                if(status < 400):
+                    print(f"{self.style._goodLink}[{status}] {link} {self.style._plainText}")
+                elif(status > 399):
+                    print(f"{self.style._badLink}[{status}] {link} {self.style._plainText}")
+            except Exception as e:
+                print(f"{self.style._unknownLink}[???] {link} {self.style._plainText}")
+
             
     def parseWebAddress(self, anchor):
         anchor = re.sub('<a href="', '', anchor)
-        anchor = re.sub('">.*$', '', anchor)
-        anchor = re.sub('(/feed)', '', anchor)
+        anchor = re.sub('">.*$[\r\n]', '', anchor)
 
         return anchor
             
-    def secureHttpChecker(self):
-        print("checking for secured links")
+    def secureHttpChecker(self, link):
+        isHttp = re.match('(http)', link)
+        
+        if(isHttp):
+            link = re.sub('(http)','https', link)
+            try:
+                response = self.manager.request('HEAD', link)
+                status = response.status
+
+                if(status < 400):
+                    print(f"{self.style._securedLink}[{status}] {link} {self.style._plainText}")
+            except Exception as e:
+                pass
