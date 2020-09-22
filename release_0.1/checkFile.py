@@ -5,6 +5,7 @@ import codecs
 import re
 
 from colourText import colourText
+from parseURL import re_weburl
 
 class checkFile:
     def __init__(self, filetoCheck, *args):
@@ -17,7 +18,7 @@ class checkFile:
         self.checkThatFile()
 
     def checkThatFile(self):
-        print('Getting status of link...')
+        print('Getting status of links...')
         for line in self.file:
             line = self.parseWebAddress(line)
             status = 0
@@ -41,11 +42,16 @@ class checkFile:
                 print(f"{self.style._unknownLink}[???] {link} {self.style._plainText}")
 
             
-    def parseWebAddress(self, anchor):
-        anchor = re.sub('<a href="', '', anchor)
-        anchor = re.sub('">.*$[\r\n]', '', anchor)
+    def parseWebAddress(self,line):
+        line = re.sub('<a href="', '', line)
+        line = re.sub('">.*$[\r\n]', '', line)         
+        url = re_weburl.search(line)
 
-        return anchor
+        if(url):
+            url = url.group(0)     
+
+        return url
+
             
     def secureHttpChecker(self, link):
         isHttp = re.match('(http)', link)
