@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from checkFile import checkFile
+from src.checkFile import checkFile
 
 if __name__ =="__main__":
     argParser = argparse.ArgumentParser()
