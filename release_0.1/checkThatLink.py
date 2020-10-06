@@ -18,14 +18,23 @@ if __name__ =="__main__":
         '-s', '--secureHttp', 
         dest='secureHttp',
         action='store_true',
-        help="Flag to check if https works on http links",
+        help="flag to check if https works on http links",
+        required=False
+    )
+    argParser.add_argument(
+        '-j', '--json',
+        dest='json', 
+        action='store_true',
+        help="display output as JSON",
         required=False
     )
 
     args = argParser.parse_args()
-    fileToCheck, secureCheck = args.file, args.secureHttp 
+    fileToCheck = args.file
+    secureCheck = args.secureHttp if args.secureHttp else None
+    json = args.json if args.json else None 
     
-    if not secureCheck:
+    if not args:
         checkFile(fileToCheck)
     else:
-        checkFile(fileToCheck, secureCheck)
+        checkFile(fileToCheck, secureCheck, json)
