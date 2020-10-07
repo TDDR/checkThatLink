@@ -21,11 +21,24 @@ if __name__ =="__main__":
         help="Flag to check if https works on http links",
         required=False
     )
-
+    argParser.add_argument(
+        '--all',  
+        action='store_true',
+        help="Flag to display all links (defualt behaviour)",
+        required=False
+    )
+    argParser.add_argument(
+        '--good',  
+        action='store_true',
+        help="Flag to display only good links",
+        required=False
+    )
+    argParser.add_argument(
+        '--bad',  
+        action='store_true',
+        help="Flag to display only bad links",
+        required=False
+    )
     args = argParser.parse_args()
-    fileToCheck, secureCheck = args.file, args.secureHttp 
-    
-    if not secureCheck:
-        checkFile(fileToCheck)
-    else:
-        checkFile(fileToCheck, secureCheck)
+
+    checkFile(args) 
