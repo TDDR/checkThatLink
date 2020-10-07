@@ -28,13 +28,24 @@ if __name__ =="__main__":
         help="display output as JSON",
         required=False
     )
-
+    argParser.add_argument(
+        '-a', '--all',  
+        action='store_true',
+        help="Flag to display all links (defualt behaviour)",
+        required=False
+    )
+    argParser.add_argument(
+        '-g', '--good',  
+        action='store_true',
+        help="Flag to display only good links",
+        required=False
+    )
+    argParser.add_argument(
+        '-b', '--bad',  
+        action='store_true',
+        help="Flag to display only bad links",
+        required=False
+    )
     args = argParser.parse_args()
-    fileToCheck = args.file
-    secureCheck = args.secureHttp if args.secureHttp else None
-    json = args.json if args.json else None 
-    
-    if not args:
-        checkFile(fileToCheck)
-    else:
-        checkFile(fileToCheck, secureCheck, json)
+
+    checkFile(args) 

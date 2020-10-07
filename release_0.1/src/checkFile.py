@@ -8,55 +8,116 @@ from src.colourText import colourText
 from src.parseURL import re_weburl
 
 class checkFile:
-    def __init__(self, filetoCheck, *args):
-        self.file = codecs.open(filetoCheck)
+    def __init__(self, args):
+        self.file = codecs.open(args.file)
         self.style = colourText()
         self.timeout = urllib3.Timeout(connect=2.5, read=2.5,)
         self.manager = urllib3.PoolManager(timeout=self.timeout)
-        self.secureCheck = args[0]
-        self.jsonOut = args[1]
+        self.secureCheck = args.secureHttp
+        self.jsonOut = args.json
         self.json = []
-
+        self.all = args.all
+        self.good = args.good
+        self.bad = args.bad
+        self.allLinks = []
+        
         self.checkThatFile()
+
+        if(self.good):
+            if(self.jsonOut):
+                self.printGoodResultsJSON()
+            else:
+                self.printGoodResults()
+        elif(self.bad):
+            if(self.jsonOut):
+                self.printBadResultsJSON()
+            else:
+                self.printBadResults()
+        else:
+            if(self.jsonOut):
+                self.printAllJSON()
+            else:
+                self.printAll()
 
 
     def checkThatFile(self):
         print('Getting status of links...')
         for line in self.file:
             line = self.parseWebAddress(line)
-            if(not self.jsonOut):
-                self.printStatusCode(line)
-                if(self.secureCheck):
-                    self.secureHttpChecker(line)
+
+            self.headRequest(line)
+            
+            if(self.secureCheck):
+                self.secureHttpChecker(line)
+            
+
+    def printAll(self):    
+        for l in self.allLinks:
+            if(l["status"] == "???"):
+                print(f'{self.style._unknownLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+            elif(l["status"] < 400 and l["secured"]):
+                print(f'{self.style._securedLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+            elif(l["status"] < 400 and not l["secured"]):
+                print(f'{self.style._goodLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
             else:
-                self.printStatusAsJSON(line)
-                if(self.secureCheck):
-                    self.secureHttpCheckerJSON(line)
-        if(self.jsonOut):
-            print(self.json)
-                
+                print(f'{self.style._badLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+    
+
+    def printAllJSON(self):
+        stripped = []
+
+        for l in self.allLinks:
+            stripped.append({"url":l["url"], "status": l["status"]})
+      
+        print(f'{stripped}')
+
+    def printGoodResults(self):
+        for l in self.allLinks:
+            if(l["status"] == "???"):
+                pass
+            elif(l["status"] < 400 and l["secured"]):
+                print(f'{self.style._securedLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+            elif(l["status"] < 400 and not l["secured"]):
+                print(f'{self.style._goodLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+
+
+    def printGoodResultsJSON(self):
+        goodLinks = []
+
+        for l in self.allLinks:
+            if(l["status"] == "???"):
+                pass
+            elif(l["status"] < 400):
+                goodLinks.append({"url":l["url"], "status": l["status"]})
         
-    def printStatusCode(self, link):
+        print(f'{goodLinks}')
+
+    def printBadResults(self):
+        for l in self.allLinks:
+            if(l["status"] == "???"):
+                    print(f'{self.style._unknownLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+            elif(l["status"] > 399):
+                print(f'{self.style._badLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
+
+
+    def printBadResultsJSON(self):
+        badLinks = []
+
+        for l in self.allLinks:
+            if(l["status"] == "???"):
+                badLinks.append({"url":l["url"], "status": l["status"]})
+            elif(l["status"] > 399):
+                badLinks.append({"url":l["url"], "status": l["status"]})
+       
+        print(f'{badLinks}')
+    
+
+    def headRequest(self, link):
             try:
                 response = self.manager.request('HEAD', link)
-                status = response.status
-
-                if(status < 400):
-                    print(f"{self.style._goodLink}[{status}] {link} {self.style._plainText}")
-                elif(status > 399):
-                    print(f"{self.style._badLink}[{status}] {link} {self.style._plainText}")
+                self.allLinks.append({"url":link, "status": response.status, "secured": False})
             except Exception as e:
-                print(f"{self.style._unknownLink}[???] {link} {self.style._plainText}")
-
-
-    def printStatusAsJSON(self, link):
-            try:
-                response = self.manager.request('HEAD', link)
-                status = response.status
-                self.json.append({"url": link, "status": status})
-
-            except Exception as e:
-                self.json.append({"url": link, "status": "???"})
+                    self.allLinks.append({"url":link, "status": "???", "secured": False})
 
        
     def parseWebAddress(self,line):
@@ -77,24 +138,7 @@ class checkFile:
             link = re.sub('(http)','https', link)
             try:
                 response = self.manager.request('HEAD', link)
-                status = response.status
-
-                if(status < 400):
-                    print(f"{self.style._securedLink}[{status}] {link} {self.style._plainText}")
+                self.allLinks.append({"url":link, "status": response.status, "secured": True})
             except Exception as e:
                 pass
 
-
-    def secureHttpCheckerJSON(self, link):
-            isHttp = re.match('(http)', link)
-            
-            if(isHttp):
-                link = re.sub('(http)','https', link)
-                try:
-                    response = self.manager.request('HEAD', link)
-                    status = response.status
-
-                    if(status < 400):
-                        self.json.append({"url": link, "status": status})
-                except Exception as e:
-                    pass
