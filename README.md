@@ -19,6 +19,14 @@ will work using https instead.
 
 ``` $  checkThatLink.py [fileName] -s```
 
+The optional flag argument -i or --ignore with a filepath will load and parse an ignored URLs text file.
+
+``` $  checkThatLink.py [fileName] -i [ignoreFile]```
+
+The format of an ignored URLs text file is as follows:
+- URLs must be placed on seperate lines and begin with either `http` or `https`
+- Any line that begins with `#` is a comment and will not be parsed
+
 The status of the URL will be shown by colour
   - Green = good link
   - Cyan = secured link
