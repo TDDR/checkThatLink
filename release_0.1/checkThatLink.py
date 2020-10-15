@@ -46,6 +46,13 @@ if __name__ =="__main__":
         help="Flag to display only bad links",
         required=False
     )
+    argParser.add_argument(
+      '-i', '--ignore',
+      action='store', 
+      dest='ignoreFile',
+      default='',
+      help='file of URL patterns to be ignored'
+    )
     args = argParser.parse_args()
 
-    checkFile(args) 
+    checkFile(args)

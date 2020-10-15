@@ -19,8 +19,9 @@ class checkFile:
         self.all = args.all
         self.good = args.good
         self.bad = args.bad
+        self.ignoreList = self.getIgnoreList(args.ignoreFile)
         self.allLinks = []
-        
+
         self.checkThatFile()
 
         if(self.good):
@@ -44,11 +45,10 @@ class checkFile:
         print('Getting status of links...')
         for line in self.file:
             line = self.parseWebAddress(line)
-
-            self.headRequest(line)
-            
-            if(self.secureCheck):
-                self.secureHttpChecker(line)
+            if self.doNotIgnore(line):
+              self.headRequest(line)
+              if(self.secureCheck):
+                  self.secureHttpChecker(line)
             
 
     def printAll(self):    
@@ -141,4 +141,23 @@ class checkFile:
                 self.allLinks.append({"url":link, "status": response.status, "secured": True})
             except Exception as e:
                 pass
+          
+    # returns false if url's domain is in ignoreList
+    def doNotIgnore(self, url):   
+      if url is not None:
+        domain = re.split('(?<!/|:)/', url)[0]
+        if domain in self.ignoreList:
+          return False
+      return True
 
+    # returns a list of all regex matches inside ignoreFile
+    def getIgnoreList(self, ignoreFile):    
+        found = []
+        try: 
+            if ignoreFile:
+                with open(ignoreFile) as src:
+                    found = re.findall('^https?://.*[^\s/]', src.read(), flags=re.MULTILINE)
+        except:
+            print(f'Error opening {ignoreFile}')
+        finally:
+            return found
