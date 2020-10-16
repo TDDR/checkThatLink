@@ -3,6 +3,7 @@
 import urllib3
 import codecs
 import re
+import sys
 
 from src.colourText import colourText
 from src.parseURL import re_weburl
@@ -156,8 +157,11 @@ class checkFile:
         try: 
             if ignoreFile:
                 with open(ignoreFile) as src:
-                    found = re.findall('^https?://.*[^\s/]', src.read(), flags=re.MULTILINE)
-        except:
-            print(f'Error opening {ignoreFile}')
-        finally:
+                    text = src.read() 
+                    found = re.findall('^https?://.*[^\s/]', text, flags=re.MULTILINE)
+                    comment = re.search('^#.*', text, flags=re.MULTILINE)
+                    return found if comment or found else sys.exit(1)
             return found
+        except:
+            print(f'Error with {ignoreFile}')
+            sys.exit(1)
