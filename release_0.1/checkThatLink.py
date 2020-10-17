@@ -51,7 +51,7 @@ if __name__ =="__main__":
       action='store', 
       dest='ignoreFile',
       default='',
-      help='file of URL patterns to be ignored'
+      help='file of URL patterns to be ignored.'
     )
     args = argParser.parse_args()
 
