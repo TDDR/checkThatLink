@@ -10,20 +10,29 @@ from src.parseURL import re_weburl
 
 class checkFile:
     def __init__(self, args):
-        self.file = codecs.open(args.file)
-        self.style = colourText()
-        self.timeout = urllib3.Timeout(connect=2.5, read=2.5,)
-        self.manager = urllib3.PoolManager(timeout=self.timeout)
+        self.fileToCheck = codecs.open(args.file)
         self.secureCheck = args.secureHttp
         self.jsonOut = args.json
-        self.json = []
         self.all = args.all
         self.good = args.good
         self.bad = args.bad
-        self.ignoreList = self.getIgnoreList(args.ignoreFile)
+        self.ignoreFile = args.ignoreFile
+       
+        self.style = colourText()
+        self.timeout = urllib3.Timeout(connect=2.5, read=2.5,)
+        self.manager = urllib3.PoolManager(timeout=self.timeout)
+       
         self.allLinks = []
+        self.jsonLinks = []
+        self.ignoreList = []
 
-        self.checkThatFile()
+        try:
+            if self.ignoreFile:
+                self.getIgnoreList(self.ignoreFile)
+            
+            self.checkThatFile()
+        except Exception as e:
+            print(f'\n{e}')
 
         if(self.good):
             if(self.jsonOut):
@@ -41,86 +50,18 @@ class checkFile:
             else:
                 self.printAll()
 
-
+    #Main function that performs a head request on every line
+    #of the file
     def checkThatFile(self):
         print('Getting status of links...')
-        for line in self.file:
+        for line in self.fileToCheck:
             line = self.parseWebAddress(line)
             if self.doNotIgnore(line):
               self.headRequest(line)
               if(self.secureCheck):
                   self.secureHttpChecker(line)
-            
 
-    def printAll(self):    
-        for l in self.allLinks:
-            if(l["status"] == "???"):
-                print(f'{self.style._unknownLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-            elif(l["status"] < 400 and l["secured"]):
-                print(f'{self.style._securedLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-            elif(l["status"] < 400 and not l["secured"]):
-                print(f'{self.style._goodLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-            else:
-                print(f'{self.style._badLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-    
-
-    def printAllJSON(self):
-        stripped = []
-
-        for l in self.allLinks:
-            stripped.append({"url":l["url"], "status": l["status"]})
-      
-        print(f'{stripped}')
-
-    def printGoodResults(self):
-        for l in self.allLinks:
-            if(l["status"] == "???"):
-                pass
-            elif(l["status"] < 400 and l["secured"]):
-                print(f'{self.style._securedLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-            elif(l["status"] < 400 and not l["secured"]):
-                print(f'{self.style._goodLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-
-
-    def printGoodResultsJSON(self):
-        goodLinks = []
-
-        for l in self.allLinks:
-            if(l["status"] == "???"):
-                pass
-            elif(l["status"] < 400):
-                goodLinks.append({"url":l["url"], "status": l["status"]})
-        
-        print(f'{goodLinks}')
-
-    def printBadResults(self):
-        for l in self.allLinks:
-            if(l["status"] == "???"):
-                    print(f'{self.style._unknownLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-            elif(l["status"] > 399):
-                print(f'{self.style._badLink}[{l["status"]}] {l["url"]}{self.style._plainText}')
-
-
-    def printBadResultsJSON(self):
-        badLinks = []
-
-        for l in self.allLinks:
-            if(l["status"] == "???"):
-                badLinks.append({"url":l["url"], "status": l["status"]})
-            elif(l["status"] > 399):
-                badLinks.append({"url":l["url"], "status": l["status"]})
-       
-        print(f'{badLinks}')
-    
-
-    def headRequest(self, link):
-            try:
-                response = self.manager.request('HEAD', link)
-                self.allLinks.append({"url":link, "status": response.status, "secured": False})
-            except Exception as e:
-                    self.allLinks.append({"url":link, "status": "???", "secured": False})
-
-       
+    #Parse the web address from the given line of a file
     def parseWebAddress(self,line):
         line = re.sub('<a href="', '', line)
         line = re.sub('">.*$[\r\n]', '', line)         
@@ -131,7 +72,15 @@ class checkFile:
 
         return url
 
-            
+    #Gets the status of a URL response
+    def headRequest(self, link):
+            try:
+                response = self.manager.request('HEAD', link)
+                self.allLinks.append({"url":link, "status": response.status, "secured": False})
+            except Exception as e:
+                    self.allLinks.append({"url":link, "status": "???", "secured": False})
+
+    #Checks to see if a 'http' link will work with 'https'
     def secureHttpChecker(self, link):
         isHttp = re.match('(http)', link)
         
@@ -145,23 +94,79 @@ class checkFile:
           
     # returns false if url's domain is in ignoreList
     def doNotIgnore(self, url):   
-      if url is not None:
-        domain = re.split('(?<!/|:)/', url)[0]
-        if domain in self.ignoreList:
-          return False
+      for domain in self.ignoreList:
+            if re.match(f'{domain}', url):
+                return False
       return True
 
     # returns a list of all regex matches inside ignoreFile
     def getIgnoreList(self, ignoreFile):    
-        found = []
         try: 
             if ignoreFile:
                 with open(ignoreFile) as src:
-                    text = src.read() 
-                    found = re.findall('^https?://.*[^\s/]', text, flags=re.MULTILINE)
-                    comment = re.search('^#.*', text, flags=re.MULTILINE)
-                    return found if comment or found else sys.exit(1)
-            return found
-        except:
-            print(f'Error with {ignoreFile}')
-            sys.exit(1)
+                    self.ignoreList = re.findall(r'^http[s]?://.*[^\s/]', src.read(), re.MULTILINE)
+                    src.seek(0)
+                    for line in src:
+                        if re.match('#', line) or re.match('\n', line):
+                            pass
+                        elif re.match(r'^http[s]?://', line):
+                            pass
+                        else:
+                            raise ValueError('\nInvalid file format for --ignore. Lines must start with "#", "http://", or "https://" only.')
+        except FileNotFoundError as e:             
+            raise
+            
+
+    def printAll(self):    
+        for line in self.allLinks:
+            if(line["status"] == "???"):
+                print(f'{self.style._unknownLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+            elif(line["status"] < 400 and line["secured"]):
+                print(f'{self.style._securedLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+            elif(line["status"] < 400 and not line["secured"]):
+                print(f'{self.style._goodLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+            else:
+                print(f'{self.style._badLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+    
+
+    def printAllJSON(self):
+        for line in self.allLinks:
+            self.jsonLinks.append({"url":line["url"], "status": line["status"]})
+      
+        print(f'{self.jsonLinks}')
+
+    def printGoodResults(self):
+        for line in self.allLinks:
+            if(line["status"] == "???"):
+                pass
+            elif(line["status"] < 400 and line["secured"]):
+                print(f'{self.style._securedLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+            elif(line["status"] < 400 and not line["secured"]):
+                print(f'{self.style._goodLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+
+
+    def printGoodResultsJSON(self):
+        for line in self.allLinks:
+            if(line["status"] == "???"):
+                pass
+            elif(line["status"] < 400):
+                self.jsonLinks.append({"url":line["url"], "status": line["status"]})
+        
+        print(f'{self.jsonLinks}')
+
+    def printBadResults(self):
+        for line in self.allLinks:
+            if(line["status"] == "???"):
+                    print(f'{self.style._unknownLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+            elif(line["status"] > 399):
+                print(f'{self.style._badLink}[{line["status"]}] {line["url"]}{self.style._plainText}')
+
+
+    def printBadResultsJSON(self):
+        for line in self.allLinks:
+            if(line["status"] == "???"):
+                self.jsonLinks.append({"url":line["url"], "status": line["status"]})
+            elif(line["status"] > 399):
+                self.jsonLinks.append({"url":line["url"], "status": line["status"]})
+
+        print(f'{self.jsonLinks}')
