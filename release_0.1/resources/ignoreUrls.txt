@@ -1,5 +1,0 @@
-#https://www.google.com
-http://hhashimi3.wordpress.
-
-#Will ignore all google urls
-https://www.google.
