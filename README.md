@@ -14,10 +14,20 @@ The application requires the path to a file as it's first positional argument.
 
 ```$  checkThatLink.py [fileName]```
 
+### Options
+
 You can also use the optional flag argument -s or --secureHttp to indicate that you want to see if the supplied http URL's
 will work using https instead.
 
 ``` $  checkThatLink.py [fileName] -s```
+
+You can choose to have the output be in JSON format instead of the orginal output by using the -j or --json flags.
+
+``` $  checkThatLink.py [fileName] -j```
+
+There is also the option to get only good, or bad matches with the coresponding flags: 
+
+``` $  checkThatLink.py [fileName] --good OR --bad```
 
 The optional flag argument -i or --ignore with a filepath will load and parse an ignored URLs text file.
 
