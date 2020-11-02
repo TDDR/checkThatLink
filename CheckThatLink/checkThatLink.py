@@ -12,7 +12,7 @@ if __name__ =="__main__":
     argParser.add_argument(
         '-v','--version',
         action='version',
-        version='%(prog)s 0.1'
+        version='%(prog)s 0.5'
     )
     argParser.add_argument(
         '-s', '--secureHttp', 
@@ -31,7 +31,7 @@ if __name__ =="__main__":
     argParser.add_argument(
         '-a', '--all',  
         action='store_true',
-        help="Flag to display all links (defualt behaviour)",
+        help="Flag to display all links (default behavior)",
         required=False
     )
     argParser.add_argument(
@@ -52,6 +52,11 @@ if __name__ =="__main__":
       dest='ignoreFile',
       default='',
       help='file of URL patterns to be ignored.'
+    )
+    argParser.add_argument(
+      '-t', '--telescope',
+      action='store_true', 
+      help='Will ignore the file given and instead check the 10 latest posts to telescope'
     )
     args = argParser.parse_args()
 

@@ -2,8 +2,8 @@
 
 import urllib3
 import codecs
+import json
 import re
-import sys
 
 from src.colourText import colourText
 from src.parseURL import re_weburl
@@ -17,6 +17,7 @@ class checkFile:
         self.good = args.good
         self.bad = args.bad
         self.ignoreFile = args.ignoreFile
+        self.telescope = args.telescope
        
         self.style = colourText()
         self.timeout = urllib3.Timeout(connect=2.5, read=2.5,)
@@ -29,6 +30,9 @@ class checkFile:
         try:
             if self.ignoreFile:
                 self.getIgnoreList(self.ignoreFile)
+
+            if self.telescope:
+                self.makeFileFromTelescope()
             
             self.checkThatFile()
         except Exception as e:
@@ -68,7 +72,9 @@ class checkFile:
         url = re_weburl.search(line)
 
         if(url):
-            url = url.group(0)     
+            url = url.group(0)        
+        elif re.match('http://localhost:', line):
+            url = line     
 
         return url
 
@@ -115,8 +121,21 @@ class checkFile:
                             raise ValueError('\nInvalid file format for --ignore. Lines must start with "#", "http://", or "https://" only.')
         except FileNotFoundError as e:             
             raise
-            
 
+    # Overwrites the file given with data from Telescope posts
+    def makeFileFromTelescope(self):
+        self.fileToCheck.close()
+        self.fileToCheck = None
+        self.fileToCheck = []
+
+        baseURL = 'http://localhost:3000/posts/'
+
+        posts = self.manager.request('GET', baseURL)
+        posts = json.loads(posts.data.decode('utf-8'))
+
+        for post in posts:   
+            self.fileToCheck.append(f'{baseURL}{post["id"]}')
+        
     def printAll(self):    
         for line in self.allLinks:
             if(line["status"] == "???"):
@@ -134,6 +153,7 @@ class checkFile:
             self.jsonLinks.append({"url":line["url"], "status": line["status"]})
       
         print(f'{self.jsonLinks}')
+
 
     def printGoodResults(self):
         for line in self.allLinks:
@@ -153,6 +173,7 @@ class checkFile:
                 self.jsonLinks.append({"url":line["url"], "status": line["status"]})
         
         print(f'{self.jsonLinks}')
+        
 
     def printBadResults(self):
         for line in self.allLinks:
