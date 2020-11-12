@@ -72,8 +72,7 @@ re_weburl = re.compile(
     # protocol identifier
     u"(?:(?:(?:https?|ftp):)?//)"
     # user:pass authentication
-    u"(?:\S+(?::\S*)?@)?"
-    u"(?:"
+    u"(?:\S+(?::\S*)?@)?" u"(?:"
     # IP address exclusion
     # private & local networks
     u"(?!(?:10|127)(?:\.\d{1,3}){3})"
@@ -102,12 +101,10 @@ re_weburl = re.compile(
     u"[a-z0-9\u00a1-\uffff]\."
     u")+"
     # TLD identifier name, may end with dot
-    u"(?:[a-z\u00a1-\uffff]{2,}\.?)"
-    u")"
+    u"(?:[a-z\u00a1-\uffff]{2,}\.?)" u")"
     # port number (optional)
     u"(?::\d{2,5})?"
     # resource path (optional)
-    u"(?:[/?#]\S*)?"
-    u"$"
-    , re.UNICODE | re.I
+    u"(?:[/?#]\S*)?" u"$",
+    re.UNICODE | re.I,
 )
