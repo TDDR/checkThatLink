@@ -13,10 +13,6 @@ class checkFile:
     def __init__(self, args):
         self.fileToCheck = codecs.open(args.file)
         self.secureCheck = args.secureHttp
-        self.jsonOut = args.json
-        self.all = args.all
-        self.good = args.good
-        self.bad = args.bad
         self.ignoreFile = args.ignoreFile
         self.telescope = args.telescope
 
@@ -25,8 +21,6 @@ class checkFile:
             connect=2.5,
             read=2.5,
         )
-        self.manager = urllib3.PoolManager(timeout=self.timeout)
-
         self.allLinks = []
         self.jsonLinks = []
         self.ignoreList = []
@@ -37,26 +31,8 @@ class checkFile:
 
             if self.telescope:
                 self.makeFileFromTelescope()
-
-            self.checkThatFile()
         except Exception as e:
             print(f"\n{e}")
-
-        if self.good:
-            if self.jsonOut:
-                self.printGoodResultsJSON()
-            else:
-                self.printGoodResults()
-        elif self.bad:
-            if self.jsonOut:
-                self.printBadResultsJSON()
-            else:
-                self.printBadResults()
-        else:
-            if self.jsonOut:
-                self.printAllJSON()
-            else:
-                self.printAll()
 
     # Main function that performs a head request on every line
     # of the file
@@ -84,8 +60,9 @@ class checkFile:
 
     # Gets the status of a URL response
     def headRequest(self, link):
+        manager = urllib3.PoolManager(timeout=self.timeout)
         try:
-            response = self.manager.request("HEAD", link)
+            response = manager.request("HEAD", link)
             self.allLinks.append(
                 {"url": link, "status": response.status, "secured": False}
             )
@@ -94,12 +71,13 @@ class checkFile:
 
     # Checks to see if a 'http' link will work with 'https'
     def secureHttpChecker(self, link):
+        manager = urllib3.PoolManager(timeout=self.timeout)
         isHttp = re.match("(http)", link)
 
         if isHttp:
             link = re.sub("(http)", "https", link)
             try:
-                response = self.manager.request("HEAD", link)
+                response = manager.request("HEAD", link)
                 self.allLinks.append(
                     {"url": link, "status": response.status, "secured": True}
                 )

@@ -3,7 +3,29 @@
 import argparse
 from src.checkFile import checkFile
 
-if __name__ == "__main__":
+
+def main(args):
+    cf = checkFile(args)
+    cf.checkThatFile()
+
+    if args.good:
+        if args.json:
+            cf.printGoodResultsJSON()
+        else:
+            cf.printGoodResults()
+    elif args.bad:
+        if args.json:
+            cf.printBadResultsJSON()
+        else:
+            cf.printBadResults()
+    else:
+        if args.json:
+            cf.printAllJSON()
+        else:
+            cf.printAll()
+
+
+def setupArgs():
     argParser = argparse.ArgumentParser()
     argParser.add_argument("file", help="file that contains links to check")
     argParser.add_argument("-v", "--version", action="version", version="%(prog)s 0.5")
@@ -59,6 +81,9 @@ if __name__ == "__main__":
         help="Will ignore the file given and instead"
         + "check the 10 latest posts to telescope",
     )
-    args = argParser.parse_args()
+    return argParser.parse_args()
 
-    checkFile(args)
+
+if __name__ == "__main__":
+    args = setupArgs()
+    main(args)
