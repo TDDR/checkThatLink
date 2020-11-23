@@ -8,7 +8,7 @@ class Args:
 
 
 args = Args()
-args.file = "../resources/test.html"
+args.file = "CheckThatLink/resources/test.html"
 args.secureHttp = None
 args.json = None
 args.all = None
@@ -25,7 +25,7 @@ def test_no_file_exception():
     with pytest.raises(FileNotFoundError):
         checkFile(args)
 
-    args.file = "../resources/test.html"
+    args.file = "CheckThatLink/resources/test.html"
 
 
 @mock.patch("src.checkFile.checkFile.headRequest")
