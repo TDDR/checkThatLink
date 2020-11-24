@@ -18,7 +18,6 @@ args.ignoreFile = None
 args.telescope = None
 
 
-# CheckThatLink/resources/test.html
 def test_no_file_exception():
     args.file = "wrong/file/path"
 
@@ -56,11 +55,10 @@ def test_headRequest_404(mock_headRequest):
     }
 
 
-# # @pytest.mark.parametrize([])
-# def test_parseWebAddress():  # lineToParse, response
+def test_parseWebAddress():  # lineToParse, response
 
-#     lineToParse = '<a href="https://www.google.com/search?q=help">http://http://hhashimi3.wordpress.com/feed/</a>'
+    lineToParse = "https://www.google.com/search?q=help"
 
-#     cF = checkFile(args)
+    cF = checkFile(args)
 
-#     assert cF.parseWebAddress(lineToParse) == "https://www.google.com/search?q=help"
+    assert cF.parseWebAddress(lineToParse) == "https://www.google.com/search?q=help"

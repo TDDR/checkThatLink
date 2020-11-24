@@ -47,8 +47,6 @@ class checkFile:
 
     # Parse the web address from the given line of a file
     def parseWebAddress(self, line):
-        line = re.sub('<a href="', "", line)
-        line = re.sub('">.*$[\r\n]', "", line)
         url = re_weburl.search(line)
 
         if url:

@@ -1,5 +1,8 @@
-# import CheckThatLink
+# from ..CheckThatLink import checkThatLink
+# from unittest import mock
+# import pytest
 
 
-# def test_arg_parser(argv, result):
+# @pytest.mark.parametrize("argv, result", [{}])
+# def test_setupArgs(argv, result):
 #     pass
