@@ -1,4 +1,4 @@
-from src.checkFile import checkFile
+import src.checkFile as checkFile
 from unittest import mock
 import pytest
 
@@ -8,7 +8,7 @@ class Args:
 
 
 args = Args()
-args.file = "CheckThatLink/resources/test.html"
+args.file = "resources/test.html"
 args.secureHttp = None
 args.json = None
 args.all = None
@@ -18,14 +18,13 @@ args.ignoreFile = None
 args.telescope = None
 
 
-# CheckThatLink/resources/test.html
 def test_no_file_exception():
     args.file = "wrong/file/path"
 
     with pytest.raises(FileNotFoundError):
-        checkFile(args)
+        checkFile.checkFile(args)
 
-    args.file = "CheckThatLink/resources/test.html"
+    args.file = "resources/test.html"
 
 
 @mock.patch("src.checkFile.checkFile.headRequest")
@@ -33,7 +32,7 @@ def test_headRequest_200(mock_headRequest):
 
     link = "http://google.com"
     mock_headRequest.return_value = {"url": link, "status": 200, "secured": False}
-    cF = checkFile(args)
+    cF = checkFile.checkFile(args)
 
     assert cF.headRequest(link) == {
         "url": "http://google.com",
@@ -47,7 +46,7 @@ def test_headRequest_404(mock_headRequest):
 
     link = "http://google.cim"
     mock_headRequest.return_value = {"url": link, "status": 404, "secured": False}
-    cF = checkFile(args)
+    cF = checkFile.checkFile(args)
 
     assert cF.headRequest(link) == {
         "url": "http://google.cim",
@@ -56,11 +55,10 @@ def test_headRequest_404(mock_headRequest):
     }
 
 
-# # @pytest.mark.parametrize([])
-# def test_parseWebAddress():  # lineToParse, response
+def test_parseWebAddress():
 
-#     lineToParse = '<a href="https://www.google.com/search?q=help">http://http://hhashimi3.wordpress.com/feed/</a>'
+    lineToParse = "https://www.google.com/search?q=help"
 
-#     cF = checkFile(args)
+    cF = checkFile.checkFile(args)
 
-#     assert cF.parseWebAddress(lineToParse) == "https://www.google.com/search?q=help"
+    assert cF.parseWebAddress(lineToParse) == "https://www.google.com/search?q=help"
