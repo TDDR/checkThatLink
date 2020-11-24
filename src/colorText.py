@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-
-
 class colourText:
     _goodLink = "\033[92m"
     _badLink = "\033[91m"

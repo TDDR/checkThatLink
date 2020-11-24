@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
-from src.checkFile import checkFile
+import checkFile
 
 
 def main(args):
-    cf = checkFile(args)
+    cf = checkFile.checkFile(args)
     cf.checkThatFile()
 
     if args.good:
