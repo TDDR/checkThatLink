@@ -25,7 +25,7 @@ igpath = "resources/ignoreUrls.txt"
 @pytest.mark.parametrize(
     "argv, result",
     [
-        ([path, "-q"], _args(secureHttp=True)),
+        ([path, "-s"], _args(secureHttp=True)),
         ([path, "-j"], _args(json=True)),
         ([path, "-a"], _args(all=True)),
         ([path, "-g"], _args(good=True)),
