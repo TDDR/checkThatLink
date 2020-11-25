@@ -5,8 +5,14 @@ import codecs
 import json
 import re
 
-from src.colourText import colourText
-from src.parseURL import re_weburl
+try:
+    from src import colorText
+except ModuleNotFoundError:
+    import colorText
+try:
+    from src import parseUrl
+except ModuleNotFoundError:
+    import parseUrl
 
 
 class checkFile:
@@ -16,7 +22,7 @@ class checkFile:
         self.ignoreFile = args.ignoreFile
         self.telescope = args.telescope
 
-        self.style = colourText()
+        self.style = colorText.colourText()
         self.timeout = urllib3.Timeout(
             connect=2.5,
             read=2.5,
@@ -47,9 +53,7 @@ class checkFile:
 
     # Parse the web address from the given line of a file
     def parseWebAddress(self, line):
-        line = re.sub('<a href="', "", line)
-        line = re.sub('">.*$[\r\n]', "", line)
-        url = re_weburl.search(line)
+        url = parseUrl.re_weburl.search(line)
 
         if url:
             url = url.group(0)

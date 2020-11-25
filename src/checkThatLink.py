@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
-from src.checkFile import checkFile
+import sys
+
+try:
+    from src import checkFile
+except ModuleNotFoundError:
+    import checkFile
 
 
 def main(args):
-    cf = checkFile(args)
+    cf = checkFile.checkFile(args)
     cf.checkThatFile()
 
     if args.good:
@@ -25,7 +30,7 @@ def main(args):
             cf.printAll()
 
 
-def setupArgs():
+def setupArgs(args):
     argParser = argparse.ArgumentParser()
     argParser.add_argument("file", help="file that contains links to check")
     argParser.add_argument("-v", "--version", action="version", version="%(prog)s 0.5")
@@ -81,9 +86,9 @@ def setupArgs():
         help="Will ignore the file given and instead"
         + "check the 10 latest posts to telescope",
     )
-    return argParser.parse_args()
+    return argParser.parse_args(args)
 
 
 if __name__ == "__main__":
-    args = setupArgs()
+    args = setupArgs(sys.argv[1:])
     main(args)
