@@ -94,7 +94,7 @@ def test_parseWebAddress():
 
 
 @mock.patch("urllib3.PoolManager.request", side_effect=mocked_requests_get)
-def test_printAll(self, capsys):
+def test_output_printAll(self, capsys):
     link = "http://google.com"
     cF = checkFile.checkFile(args)
     cF.headRequest(link)
@@ -104,7 +104,7 @@ def test_printAll(self, capsys):
 
 
 @mock.patch("urllib3.PoolManager.request", side_effect=mocked_requests_get)
-def test_printBadResultsJSON(self, capsys):
+def test_output_printAll_unknown(self, capsys):
     link = "thisdoesnotwork"
     cF = checkFile.checkFile(args)
     cF.headRequest(link)
@@ -114,7 +114,7 @@ def test_printBadResultsJSON(self, capsys):
 
 
 @mock.patch("urllib3.PoolManager.request", side_effect=mocked_requests_get)
-def test_checkThatFile(self, capsys):
+def test_output_printAll_JSON_400(self, capsys):
     answer_str = "[{'url': 'http://google.com', 'status': 400}]\n"
     link = "http://google.com"
     cF = checkFile.checkFile(args)
