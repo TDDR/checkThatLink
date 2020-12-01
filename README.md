@@ -9,7 +9,7 @@ computer you can run the following command.
 
 The application can now be run from the command line with the abriviated form like.
 
-```$  clt [fileName]```
+```$  ctl [fileName]```
 
 *requires the path to a file as it's first positional argument.*
 
