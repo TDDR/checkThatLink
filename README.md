@@ -29,7 +29,7 @@ The status of the URL will be shown by colour
 | -g, --good | Show results for good links only |
 | -b, --bad | Show results for bad links only |
 | -i [file], --ignore [file] | this option requiers a file that contains a list or URL's to ignore. *Note 1*|
-| -t, --telescope | Check the status of the latest 10 Telescope posts.|
+| -t, --telescope | Check the status of the latest 10 Telescope posts. *Note 2*|
 
 *Note 1* - The format of an ignored URLs text file is as follows:
 - URLs must be placed on separate lines and begin with either `http` or `https`
