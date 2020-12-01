@@ -6,15 +6,15 @@ First of all, thank you for wanting to contribute to my repository. You can crea
 
 This application requires Python version 3.0 or higher. It also requires a few dependandices which can be installed with the following command.
 
-`$ pip install urllib3 pytest pytest-cov `
+`$ pip install . `
 
 To use, run the application using.
 
-`$ checkThatLink.py`
+`$ ctl`
 
 The application requires the path to a file as it's first positional argument.
 
-`$ checkThatLink.py [fileName]`
+`$ ctl [fileName]`
 
 ### Auto Formatting with Visual Studio Code
 
