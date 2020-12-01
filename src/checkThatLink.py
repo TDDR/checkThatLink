@@ -9,7 +9,9 @@ except ModuleNotFoundError:
     import checkFile
 
 
-def main(args):
+def main():
+    args = setupArgs(sys.argv[1:])
+
     cf = checkFile.checkFile(args)
     cf.checkThatFile()
 
@@ -90,5 +92,4 @@ def setupArgs(args):
 
 
 if __name__ == "__main__":
-    args = setupArgs(sys.argv[1:])
-    main(args)
+    main()
